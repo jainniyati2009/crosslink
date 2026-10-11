@@ -8,3 +8,4 @@ test-results
 *.tsbuildinfo
 tests/e2e/.auth
 .pnpm-store
+.vercel
