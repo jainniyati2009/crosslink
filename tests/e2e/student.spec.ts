@@ -1,0 +1,20 @@
+import { test, expect } from '@playwright/test';
+test.use({ storageState: process.env.E2E_STUDENT_STATE ?? 'tests/e2e/.auth/student.json' });
+test('student navigation, discussion, reply, profile, and timetable', async ({page}) => {
+  await page.goto('/feed');
+  await expect(page.getByRole('heading',{name:'Campus Desk'})).toBeVisible();
+  await page.getByRole('link',{name:/New discussion/}).click();
+  const title=`Browser check ${Date.now()}`;
+  await page.getByLabel('Title').fill(title);
+  await page.getByLabel('Your post').fill('A browser journey created this test discussion.');
+  await page.getByRole('button',{name:'Publish discussion'}).click();
+  await expect(page.getByRole('heading',{name:title})).toBeVisible();
+  await page.getByLabel('Add a reply').fill('A reply from the browser journey.');
+  await page.getByRole('button',{name:'Post reply'}).click();
+  await expect(page.getByText('A reply from the browser journey.')).toBeVisible();
+  await page.goto('/settings/profile');
+  await expect(page.getByLabel('University email')).toBeDisabled();
+  await page.getByRole('button',{name:'Save profile'}).click();
+  await page.goto('/timetable');
+  await expect(page.getByRole('heading',{name:'Timetable'})).toBeVisible();
+});

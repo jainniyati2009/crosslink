@@ -1,0 +1,10 @@
+import { requireUser } from '@/lib/auth/guards.server';
+import { mutationBody } from '@/lib/mutation-guard.server';
+import { ok } from '@/lib/api-errors';
+import { route } from '@/lib/route';
+import { rateLimit } from '@/lib/rate-limit.server';
+import { listReplies, createReply } from '@/features/discussions/service.server';
+export const runtime = 'nodejs';
+type Context = { params: Promise<{ id: string }> };
+export const GET = route(async (request, { params }: Context) => { await requireUser(); const result = await listReplies((await params).id, request.url); return ok(result.data, 200, { nextCursor: result.nextCursor }); });
+export const POST = route(async (request, { params }: Context) => { const actor = await requireUser(); const body = await mutationBody(request); await rateLimit(`reply:${actor.id}`, 20); return ok(await createReply(actor.id, (await params).id, body), 201); });

@@ -1,0 +1,10 @@
+import { requireUser } from '@/lib/auth/guards.server';
+import { mutationBody } from '@/lib/mutation-guard.server';
+import { ok } from '@/lib/api-errors';
+import { route } from '@/lib/route';
+import { getDiscussion, editDiscussion, deleteDiscussion } from '@/features/discussions/service.server';
+export const runtime = 'nodejs';
+type Context = { params: Promise<{ id: string }> };
+export const GET = route(async (_request, { params }: Context) => { await requireUser(); return ok(await getDiscussion((await params).id)); });
+export const PATCH = route(async (request, { params }: Context) => { const actor = await requireUser(); return ok(await editDiscussion(actor.id, (await params).id, await mutationBody(request))); });
+export const DELETE = route(async (request, { params }: Context) => { const actor = await requireUser(); await mutationBody(request); await deleteDiscussion(actor.id, (await params).id); return new Response(null, { status: 204 }); });
