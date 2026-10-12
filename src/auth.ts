@@ -15,7 +15,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async session({ session, user }) {
       if (!user?.id) return session;
-      const current = await db.user.findUnique({ where: { id: user.id }, select: { id: true, name: true, email: true, image: true, role: true, status: true, selectedCohortId: true } });
+      const current = await db.user.findUnique({ where: { id: user.id }, select: { id: true, name: true, email: true, image: true, bio: true, role: true, status: true, selectedCohortId: true, onboardingCompletedAt: true } });
       if (!current || current.status !== 'ACTIVE') return null as never;
       session.user = { ...session.user, ...current };
       return session;

@@ -14,6 +14,9 @@ export async function listAnnouncements(categoryFilter?: string) {
   if (categoryFilter && !selected.success) throw invalid('Invalid announcement category.');
   return db.announcement.findMany({ where: { ...publishedWhere(), ...(selected.success ? { category: selected.data } : {}) }, orderBy: [{ isPinned: 'desc' }, { publishedAt: 'desc' }], select: view });
 }
+export async function listPinnedAnnouncements() {
+  return db.announcement.findMany({ where: { ...publishedWhere(), isPinned: true }, orderBy: { publishedAt: 'desc' }, take: 4, select: { id: true, title: true, category: true, isDemo: true } });
+}
 export async function getAnnouncement(id: string) {
   const row = await db.announcement.findFirst({ where: { id, ...publishedWhere() }, select: view });
   if (!row) throw missing();
