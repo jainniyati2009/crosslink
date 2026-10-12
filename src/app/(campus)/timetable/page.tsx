@@ -20,7 +20,7 @@ export default async function Timetable() {
         <div>
           <div className="eyebrow">Official timetable · July–December 2026</div>
           <h2 id="official-timetable-title">B.Tech class schedules</h2>
-          <p className="muted">The attached five-page document includes CSE, CSAI, CSDS, and MAC schedules across multiple semesters.</p>
+          <p className="muted">CSE, CSAI, CSDS, and MAC schedules.</p>
         </div>
         <div className="timetable-resource-actions">
           <a className="button secondary" href={timetablePdf} target="_blank" rel="noreferrer">Open PDF ↗</a>

@@ -14,18 +14,17 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
   return <main className="login">
     <section className="login-art">
       <div className="brand"><span className="brand-mark" style={{ borderColor: '#fff', color: '#fff' }}>N</span><span>NSUT CONNECT<small>Campus Desk</small></span></div>
-      <div><div className="eyebrow">Your student community</div><h1>Your campus,<br/><em>in the loop.</em></h1><p>Discussions, official notices, and your timetable — together.</p></div>
-      <div className="login-ornament">A home for campus conversations, the notices that matter, and your week at a glance.</div>
+      <div><div className="eyebrow">NSUT STUDENTS</div><h1>Campus<br/><em>updates.</em></h1><p>Notices, timetables, and student discussions.</p></div>
+      <div className="login-ornament">Discussions · Notices · Timetable</div>
     </section>
     <section className="login-panel"><div className="login-box">
-      <div className="eyebrow">Welcome to Campus Desk</div>
-      <h2>Sign in to continue.</h2>
-      <p className="muted">Use your eligible NSUT Google account to access your campus desk.</p>
-      {!oauthConfigured ? <p className="error" role="status">Google sign-in is unavailable in this local preview. Add real Google OAuth credentials to <code>.env.local</code> and restart the server.</p> : <>
-        {error === 'AccessDenied' && <p className="error" role="alert">This account is not eligible. Use a verified @nsut.ac.in Google Workspace account.</p>}
+      <div className="eyebrow">NSUT ACCOUNT</div>
+      <h2>Sign in</h2>
+      <p className="muted">Use your @nsut.ac.in Google account.</p>
+      {!oauthConfigured ? <p className="error" role="status">Google sign-in is unavailable.</p> : <>
+        {error === 'AccessDenied' && <p className="error" role="alert">Use your @nsut.ac.in Google account.</p>}
         <form action={async () => { 'use server'; await signIn('google', { redirectTo: '/feed' }); }}><button className="button" type="submit"><span aria-hidden>G</span> Continue with Google</button></form>
       </>}
-      <small>University account required. New members set up their profile after signing in.</small>
     </div></section>
   </main>;
 }

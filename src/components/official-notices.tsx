@@ -15,12 +15,11 @@ export function OfficialNotices({ compact = false }: { compact?: boolean }) {
   return <section className="card official-notices" aria-labelledby={compact ? 'official-notices-feed' : 'official-notices-page'}>
     <div className="row official-notices-heading">
       <div>
-        <div className="eyebrow">NSUT official source</div>
+        <div className="eyebrow">NSUT</div>
         <h2 id={compact ? 'official-notices-feed' : 'official-notices-page'}>{compact ? 'Recent campus notices' : 'Notices and circulars'}</h2>
       </div>
-      <a className="button secondary" href={sourceUrl} target="_blank" rel="noreferrer">Open NSUT portal ↗</a>
+      <a className="button secondary" href={sourceUrl} target="_blank" rel="noreferrer">All notices ↗</a>
     </div>
-    <p className="muted official-notices-note">Titles, dates, and departments copied from the public NSUT IMS notices page on 12 Oct 2026. Open the source for each notice’s original details and latest status.</p>
     <ul className="official-notice-list">
       {shown.map(notice => <li key={`${notice.date}-${notice.title}`}>
         <div><strong>{notice.title}</strong><small>{notice.department}</small></div>
