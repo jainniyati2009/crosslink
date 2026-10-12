@@ -56,4 +56,4 @@ Vercel functions are configured for Singapore (sin1), near the Neon database. Au
 
 ## Timetable
 
-Choose a term, branch, semester, and section. Day view shows class counts, times in IST, rooms, and faculty; Week view shows the full schedule. Download exports the selected section as CSV. Available choices come from published database cohorts. Demo schedules stay labelled and are not presented as official classes.
+Choose a term, branch, semester, and section. Day view shows class counts, times in IST, rooms, and faculty; Week view shows the full schedule. Download exports the selected section as CSV. The supplied July–December 2026 PDF is available for B.Tech first-year CSE, CSAI, CSDS, and MAC sections. Select the branch, semester, and section to view its schedule. The source PDF is linked from the timetable.

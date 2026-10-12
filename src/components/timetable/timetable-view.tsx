@@ -6,25 +6,25 @@ import { classState } from '@/features/timetable/schemas';
 
 type Term = { id: string; name: string; startsOn: string; endsOn: string };
 type Cohort = { id: string; termId: string; programme: string; semester: number; section: string };
-type Entry = { id: string; weekday: number; startMinute: number; endMinute: number; courseCode: string; courseTitle: string; room: string; instructor: string | null };
+type Entry = { id: string; weekday: number; startMinute: number; endMinute: number; courseCode: string; courseTitle: string; room: string; instructor: string | null; slot?: string };
 export type Schedule = { id: string; isDemo: boolean; version: number; cohort: { term: Term }; entries: Entry[] };
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const clock = (n: number) => `${String(Math.floor(n / 60)).padStart(2, '0')}:${String(n % 60).padStart(2, '0')}`;
 const branchName = (programme: string) => programme.replace(/^B\.?Tech\s*/i, '').replace(/\s*\(demo\)$/i, '').trim();
 const today = () => days.indexOf(new Intl.DateTimeFormat('en', { timeZone: 'Asia/Kolkata', weekday: 'long' }).format(new Date())) + 1;
 
-export function TimetableView({ terms, cohorts, initialCohortId, initialSchedule }: { terms: Term[]; cohorts: Cohort[]; initialCohortId: string | null; initialSchedule: Schedule | null }) {
+export function TimetableView({ terms, cohorts, initialCohortId, initialSchedule, suppliedSchedules = {} }: { terms: Term[]; cohorts: Cohort[]; initialCohortId: string | null; initialSchedule: Schedule | null; suppliedSchedules?: Record<string, Schedule> }) {
   const initial = cohorts.find(c => c.id === initialCohortId);
-  const [branch, setBranch] = useState(initial?.programme ?? '');
+  const [branch, setBranch] = useState(initial?.programme ?? cohorts[0]?.programme ?? '');
   const [termId, setTermId] = useState(initial?.termId ?? terms[0]?.id ?? '');
-  const [semester, setSemester] = useState(initial?.semester.toString() ?? '');
-  const [cohort, setCohort] = useState(initial?.id ?? '');
+  const [semester, setSemester] = useState(initial?.semester.toString() ?? cohorts[0]?.semester.toString() ?? '');
+  const [cohort, setCohort] = useState(initial?.id ?? cohorts[0]?.id ?? '');
   const [day, setDay] = useState(today);
   const [view, setView] = useState<'week' | 'day'>('day');
   const branches = [...new Set(cohorts.filter(c => c.termId === termId).map(c => c.programme))];
   const semesters = [...new Set(cohorts.filter(c => c.termId === termId && c.programme === branch).map(c => c.semester))];
   const sections = cohorts.filter(c => c.termId === termId && c.programme === branch && c.semester.toString() === semester);
-  const q = useQuery({ queryKey: ['timetable', cohort], queryFn: () => api<Schedule | null>(`/timetables?cohortId=${encodeURIComponent(cohort)}`), enabled: !!cohort, staleTime: 60_000, initialData: cohort === initialCohortId ? initialSchedule : undefined });
+  const q = useQuery({ queryKey: ['timetable', cohort], queryFn: () => suppliedSchedules[cohort] ?? api<Schedule | null>(`/timetables?cohortId=${encodeURIComponent(cohort)}`), enabled: !!cohort, staleTime: 60_000, initialData: suppliedSchedules[cohort] ?? (cohort === initialCohortId ? initialSchedule : undefined) });
   const schedule = q.data;
   const entries = schedule?.entries ?? [];
   const byDay = days.map((_, index) => entries.filter(e => e.weekday === index + 1));
@@ -47,12 +47,12 @@ export function TimetableView({ terms, cohorts, initialCohortId, initialSchedule
       <div className="row"><div className="schedule-toggle" role="group" aria-label="Timetable view">{(['day', 'week'] as const).map(v => <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)}>{v === 'day' ? 'Day' : 'Week'}</button>)}</div><button type="button" className="button secondary" disabled={!entries.length} onClick={download}>↓ Download</button></div>
     </div>
     {!cohort ? <div className="empty">Choose your branch, semester, and section.</div> : q.isLoading ? <div className="empty" role="status">Loading timetable…</div> : q.error ? <div className="empty"><p>Could not load this timetable.</p><button className="button secondary" onClick={() => q.refetch()}>Try again</button></div> : !schedule ? <div className="empty">No timetable published for this section.</div> : <>
-      <div className="schedule-summary"><span>{state?.kind === 'OUT_OF_TERM' ? 'Selected term is not current' : state?.kind === 'NO_CLASSES' ? 'No classes today' : state?.kind === 'DONE' ? 'Done for today' : state?.current ? `Now: ${state.current.courseCode} · ${state.current.room}` : state?.next ? `Next: ${state.next.courseCode} · ${clock(state.next.startMinute)} · ${state.next.room}` : 'Your schedule'}</span>{schedule.isDemo && <span className="tag red">Demo schedule</span>}</div>
+      <div className="schedule-summary"><span>{schedule.cohort.term.name} · {state?.kind === 'OUT_OF_TERM' ? 'Selected term is not current' : state?.kind === 'NO_CLASSES' ? 'No classes today' : state?.kind === 'DONE' ? 'Done for today' : state?.current ? `Now: ${state.current.courseCode} · ${state.current.room}` : state?.next ? `Next: ${state.next.courseCode} · ${clock(state.next.startMinute)} · ${state.next.room}` : 'Your schedule'}</span><a href="/documents/nsut-btech-timetable-jul-dec-2026.pdf" target="_blank" rel="noreferrer">View source PDF ↗</a>{schedule.isDemo && <span className="tag red">Demo schedule</span>}</div>
       {view === 'day' ? <>
         <div className="schedule-day-tabs" role="group" aria-label="Day of the week">{days.map((name, i) => <button type="button" key={name} aria-pressed={day === i + 1} onClick={() => setDay(i + 1)}><strong>{name.slice(0, 3)}</strong><small>{byDay[i].length} classes</small></button>)}</div>
         <div className="row schedule-day-heading"><h2>{days[day - 1]}</h2><span className="muted">{byDay[day - 1].length} on your schedule · IST</span></div>
-        <div className="schedule-class-list">{byDay[day - 1].map(e => <article className="schedule-class-row" key={e.id}><div className="schedule-time">{clock(e.startMinute)}<small>{clock(e.endMinute)}</small></div><div className={`schedule-class-content ${/lab/i.test(e.courseTitle) ? 'lab' : ''}`}><span className="eyebrow">{e.courseCode}</span><h3>{e.courseTitle}</h3><p>{e.room}{e.instructor ? ` · ${e.instructor}` : ''}</p></div></article>)}{!byDay[day - 1].length && <div className="empty">No classes scheduled for this day.</div>}</div>
-      </> : <div className="schedule-week-grid">{days.map((name, i) => <section key={name}><h3>{name}</h3>{byDay[i].map(e => <article key={e.id} className={`schedule-week-class ${/lab/i.test(e.courseTitle) ? 'lab' : ''}`}><small>{clock(e.startMinute)}–{clock(e.endMinute)}</small><strong>{e.courseTitle}</strong><span>{e.courseCode} · {e.room}</span>{e.instructor && <small>{e.instructor}</small>}</article>)}{!byDay[i].length && <p className="muted">No classes</p>}</section>)}</div>}
+        <div className="schedule-class-list">{byDay[day - 1].map(e => <article className="schedule-class-row" key={e.id}><div className="schedule-time">{clock(e.startMinute)}<small>{clock(e.endMinute)}</small></div><div className={`schedule-class-content ${/lab/i.test(e.courseTitle) ? 'lab' : ''}`}><span className="eyebrow">{e.courseCode}{e.slot ? ` · ${e.slot}` : ''}</span><h3>{e.courseTitle}</h3><p>{e.room}{e.instructor ? ` · ${e.instructor}` : ''}</p></div></article>)}{!byDay[day - 1].length && <div className="empty">No classes scheduled for this day.</div>}</div>
+      </> : <div className="schedule-week-grid">{days.map((name, i) => <section key={name}><h3>{name}</h3>{byDay[i].map(e => <article key={e.id} className={`schedule-week-class ${/lab/i.test(e.courseTitle) ? 'lab' : ''}`}><small>{clock(e.startMinute)}–{clock(e.endMinute)}</small><strong>{e.courseTitle}</strong><span>{e.courseCode}{e.slot ? ` · ${e.slot}` : ''} · {e.room}</span>{e.instructor && <small>{e.instructor}</small>}</article>)}{!byDay[i].length && <p className="muted">No classes</p>}</section>)}</div>}
     </>}
   </section>;
 }
