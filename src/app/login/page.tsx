@@ -2,7 +2,7 @@ import { auth, signIn } from '@/auth';
 import { redirect } from 'next/navigation';
 export const dynamic = 'force-dynamic';
 export default async function Login({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  if (await auth()) redirect('/feed');
+  if (await auth()) redirect('/settings/appearance');
   const { error } = await searchParams;
   const clientId = process.env.AUTH_GOOGLE_ID;
   const clientSecret = process.env.AUTH_GOOGLE_SECRET;
@@ -23,7 +23,7 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
       <p className="muted">Use your @nsut.ac.in Google account.</p>
       {!oauthConfigured ? <p className="error" role="status">Google sign-in is unavailable.</p> : <>
         {error === 'AccessDenied' && <p className="error" role="alert">Use your @nsut.ac.in Google account.</p>}
-        <form action={async () => { 'use server'; await signIn('google', { redirectTo: '/feed' }); }}><button className="button" type="submit"><span aria-hidden>G</span> Continue with Google</button></form>
+        <form action={async () => { 'use server'; await signIn('google', { redirectTo: '/settings/appearance' }); }}><button className="button" type="submit"><span aria-hidden>G</span> Continue with Google</button></form>
       </>}
     </div></section>
   </main>;
