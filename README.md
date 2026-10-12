@@ -53,3 +53,7 @@ Live Google sign-in, database migrations, browser journeys, and a Vercel deploym
 ## Performance
 
 Vercel functions are configured for Singapore (sin1), near the Neon database. Authentication and discussion detail reads are deduplicated within each server render. Loading boundaries give immediate navigation feedback. The selected timetable loads with the page and is reused by the client for 60 seconds.
+
+## Timetable
+
+Choose a term, branch, semester, and section. Day view shows class counts, times in IST, rooms, and faculty; Week view shows the full schedule. Download exports the selected section as CSV. Available choices come from published database cohorts. Demo schedules stay labelled and are not presented as official classes.
