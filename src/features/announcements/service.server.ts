@@ -10,10 +10,11 @@ export const noticeInput = z.object({ title: z.string().trim().min(3).max(140), 
 export const noticeCreate = noticeInput.extend({ status: z.enum(['DRAFT', 'PUBLISHED']).optional(), isPinned: z.boolean().optional() }).strict();
 export const noticeEdit = noticeInput.partial().extend({ status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(), isPinned: z.boolean().optional() }).strict();
 const view = { id: true, title: true, body: true, category: true, status: true, isPinned: true, isDemo: true, publishedAt: true, expiresAt: true, createdAt: true, author: { select: { id: true, name: true, image: true } } } as const;
-export async function listAnnouncements(categoryFilter?: string) {
+export async function listAnnouncements(categoryFilter?: string, query?: string) {
   const selected = category.safeParse(categoryFilter);
   if (categoryFilter && !selected.success) throw invalid('Invalid announcement category.');
-  return db.announcement.findMany({ where: { ...publishedWhere(), ...(selected.success ? { category: selected.data } : {}) }, orderBy: [{ isPinned: 'desc' }, { publishedAt: 'desc' }], select: view });
+  const q = query?.trim().slice(0, 100);
+  return db.announcement.findMany({ where: { ...publishedWhere(), ...(selected.success ? { category: selected.data } : {}), ...(q ? { OR: [{ title: { contains: q, mode: 'insensitive' as const } }, { body: { contains: q, mode: 'insensitive' as const } }] } : {}) }, orderBy: [{ isPinned: 'desc' }, { publishedAt: 'desc' }], select: view });
 }
 export async function listPinnedAnnouncements() {
   return db.announcement.findMany({ where: { ...publishedWhere(), isPinned: true }, orderBy: { publishedAt: 'desc' }, take: 4, select: { id: true, title: true, category: true, isDemo: true } });
