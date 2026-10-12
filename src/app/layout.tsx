@@ -4,5 +4,5 @@ import { Providers } from '@/components/providers';
 import './globals.css';
 const dm = DM_Sans({ subsets: ['latin'], variable: '--font-dm' });
 const news = Newsreader({ subsets: ['latin'], variable: '--font-news' });
-export const metadata: Metadata = { title: 'NSUT Connect | Campus Desk', description: 'Discussions, official notices, and your timetable — together.' };
+export const metadata: Metadata = { title: 'One Place | NSUT', description: 'Discussions, official notices, and your timetable — together.' };
 export default function RootLayout({ children }: { children: React.ReactNode }) { return <html lang="en"><body className={`${dm.variable} ${news.variable}`}><Providers>{children}</Providers></body></html>; }

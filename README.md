@@ -1,4 +1,4 @@
-# NSUT Connect — Campus Desk
+# One Place — NSUT
 
 A campus community application built with Next.js App Router, React, strict TypeScript, Tailwind CSS, Auth.js Google sign-in, database sessions, Prisma, Neon PostgreSQL, Zod, TanStack Query, Vitest, and Playwright. The sample content is marked **Demo** and makes no claim to be official NSUT information.
 
@@ -21,11 +21,11 @@ Do not disable the Google domain check to make integration work. The `hd` author
 
 Protected Server Components call feature services directly. Browser forms use `/api/v1` REST handlers. Handlers parse HTTP, validate JSON origins, and return `{data,meta}` or `{error}`. Services apply ownership, admin role, publication, overlap, and version checks before Prisma writes. Ordinary user content is plain text. Sensitive response fields are selected explicitly. Campus responses use private no-store caching.
 
-Auth.js uses its Prisma adapter and PostgreSQL database sessions. Every ordinary signup is STUDENT. The session callback checks current account status and provides current profile fields to protected routes; suspended users are denied. Admin promotion is a local script, never a public endpoint. Google OAuth tokens stay in the Account table and are not serialized by campus APIs. The app requires an exact `APP_ORIGIN` for JSON mutations and uses a PostgreSQL-backed write limiter.
+Auth.js uses its Prisma adapter and PostgreSQL database sessions. Every ordinary signup is STUDENT. The session callback checks the current user loaded by the database-session adapter and provides current profile fields to protected routes; suspended users are denied. Admin promotion is a local script, never a public endpoint. Google OAuth tokens stay in the Account table and are not serialized by campus APIs. The app requires an exact `APP_ORIGIN` for JSON mutations and uses a PostgreSQL-backed write limiter.
 
-Student journey: sign in → confirm name and optional cohort → browse feed and pinned notices → search discussions → post/reply → view timetable → track manually entered attendance → choose an appearance theme → edit profile. Admin journey: use `/admin` for counts → create, publish, pin, archive, or delete notices → edit cohort schedules with version conflicts → hide or restore posts and replies with a logged reason, or lock discussions.
+Student journey: sign in → confirm name and optional cohort → browse feed and pinned notices → search discussions → post/reply → view timetable → view attendance feature status → choose an appearance theme → edit profile. Admin journey: use `/admin` for counts → create, publish, pin, archive, or delete notices → edit cohort schedules with version conflicts → hide or restore posts and replies with a logged reason, or lock discussions.
 
-The attendance planner calculates the 75% target from counts entered by the student and saves them in that browser only. It does not connect to UMS or collect UMS passwords. The five appearance themes are also stored on the current device.
+Attendance is marked Coming soon until a working official integration is available. The app does not collect UMS passwords. The five appearance themes are also stored on the current device.
 
 ## Public project reference
 
@@ -49,3 +49,7 @@ await fetch('/api/v1/discussions', {
 Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build`. Run Playwright against a staging deployment with a test database: set `E2E_BASE_URL`, `E2E_STUDENT_STATE`, and `E2E_ADMIN_STATE` to locally generated Playwright storage-state files for two real eligible accounts, then run `pnpm test:e2e`. These fixture files must never be committed. No production authentication bypass is provided.
 
 Live Google sign-in, database migrations, browser journeys, and a Vercel deployment require external credentials and were not exercised in the source-only environment used to prepare this project. The recruitment page was inaccessible during implementation; this project follows the supplied specification.
+
+## Performance
+
+Vercel functions are configured for Singapore (sin1), near the Neon database. Authentication and discussion detail reads are deduplicated within each server render. Loading boundaries give immediate navigation feedback. The selected timetable loads with the page and is reused by the client for 60 seconds.

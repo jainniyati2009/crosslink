@@ -1,4 +1,5 @@
 import 'server-only';
+import { cache } from 'react';
 import { db } from '@/lib/db';
 import { AppError, missing, invalid } from '@/lib/api-errors';
 import { assertDiscussionOpen, assertOwner } from '@/lib/auth/guards.server';
@@ -19,11 +20,11 @@ export async function listDiscussions(input: z.infer<typeof listInput>) {
   const nextCursor = rows.length > input.limit ? rows[input.limit - 1].id : null;
   return { data: rows.slice(0, input.limit), nextCursor };
 }
-export async function getDiscussion(id: string) {
+export const getDiscussion = cache(async (id: string) => {
   const row = await db.discussion.findFirst({ where: { id, visibility: 'VISIBLE' }, select: discussionView });
   if (!row) throw missing();
   return row;
-}
+});
 export async function createDiscussion(actorId: string, payload: unknown) {
   const input = discussionInput.parse(payload);
   return db.discussion.create({ data: { ...input, authorId: actorId }, select: discussionView });

@@ -13,11 +13,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn({ account, profile }) {
       return account?.provider === 'google' && isEligibleGoogleProfile(profile ?? {}, process.env.GOOGLE_WORKSPACE_DOMAIN ?? 'nsut.ac.in');
     },
-    async session({ session, user }) {
-      if (!user?.id) return session;
-      const current = await db.user.findUnique({ where: { id: user.id }, select: { id: true, name: true, email: true, image: true, bio: true, role: true, status: true, selectedCohortId: true, onboardingCompletedAt: true } });
-      if (!current || current.status !== 'ACTIVE') return null as never;
-      session.user = { ...session.user, ...current };
+    session({ session, user }) {
+      // The database-session adapter has just loaded this user with the session.
+      if (!user?.id || user.status !== 'ACTIVE') return null as never;
+      session.user = {
+        id: user.id, name: user.name, email: user.email, image: user.image,
+        bio: user.bio ?? '', role: user.role, status: user.status,
+        selectedCohortId: user.selectedCohortId ?? null,
+        onboardingCompletedAt: user.onboardingCompletedAt ?? null,
+      };
       return session;
     }
   },

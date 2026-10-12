@@ -13,7 +13,7 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
   );
   return <main className="login">
     <section className="login-art">
-      <div className="brand"><span className="brand-mark" style={{ borderColor: '#fff', color: '#fff' }}>N</span><span>NSUT CONNECT<small>Campus Desk</small></span></div>
+      <div className="brand"><span className="brand-mark" style={{ borderColor: '#fff', color: '#fff' }}>O</span><span>ONE PLACE<small>Campus Desk</small></span></div>
       <div><div className="eyebrow">NSUT STUDENTS</div><h1>Campus<br/><em>updates.</em></h1><p>Notices, timetables, and student discussions.</p></div>
       <div className="login-ornament">Discussions · Notices · Timetable</div>
     </section>
