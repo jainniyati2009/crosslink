@@ -5,16 +5,15 @@ vi.mock('@/lib/db',()=>({db:{user:{findUnique:mocks.findUnique},$transaction:moc
 import { requireUser, requireAdmin } from '../../src/lib/auth/guards.server';
 import { replaceTimetable } from '../../src/features/timetable/service.server';
 
-beforeEach(()=>{vi.resetAllMocks();mocks.auth.mockResolvedValue({user:{id:'student-1'}})});
-describe('database-backed access',()=>{
-  it('rejects revoked sessions and suspended accounts',async()=>{
-    mocks.findUnique.mockResolvedValueOnce(null);
+beforeEach(()=>{vi.resetAllMocks();mocks.auth.mockResolvedValue({user:{id:'student-1',role:'STUDENT',status:'ACTIVE'}})});
+describe('session-backed access',()=>{
+  it('rejects missing and suspended sessions',async()=>{
+    mocks.auth.mockResolvedValueOnce(null);
     await expect(requireUser()).rejects.toMatchObject({status:401});
-    mocks.findUnique.mockResolvedValueOnce({id:'student-1',role:'STUDENT',status:'SUSPENDED'});
+    mocks.auth.mockResolvedValueOnce({user:{id:'student-1',role:'STUDENT',status:'SUSPENDED'}});
     await expect(requireUser()).rejects.toMatchObject({status:401});
   });
   it('denies a student at the admin guard',async()=>{
-    mocks.findUnique.mockResolvedValue({id:'student-1',role:'STUDENT',status:'ACTIVE'});
     await expect(requireAdmin()).rejects.toMatchObject({status:403});
   });
   it('returns a conflict for stale timetable replacement',async()=>{

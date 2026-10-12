@@ -23,7 +23,13 @@ Protected Server Components call feature services directly. Browser forms use `/
 
 Auth.js uses its Prisma adapter and PostgreSQL database sessions. Every ordinary signup is STUDENT. The session callback checks current account status and provides current profile fields to protected routes; suspended users are denied. Admin promotion is a local script, never a public endpoint. Google OAuth tokens stay in the Account table and are not serialized by campus APIs. The app requires an exact `APP_ORIGIN` for JSON mutations and uses a PostgreSQL-backed write limiter.
 
-Student journey: sign in → confirm name and optional cohort → browse feed and pinned notices → search discussions → post/reply → view timetable → edit profile. Admin journey: use `/admin` for counts → create, publish, pin, archive, or delete notices → edit cohort schedules with version conflicts → hide or restore posts and replies with a logged reason, or lock discussions.
+Student journey: sign in → confirm name and optional cohort → browse feed and pinned notices → search discussions → post/reply → view timetable → track manually entered attendance → choose an appearance theme → edit profile. Admin journey: use `/admin` for counts → create, publish, pin, archive, or delete notices → edit cohort schedules with version conflicts → hide or restore posts and replies with a logged reason, or lock discussions.
+
+The attendance planner calculates the 75% target from counts entered by the student and saves them in that browser only. It does not connect to UMS or collect UMS passwords. The five appearance themes are also stored on the current device.
+
+## Public project reference
+
+The feature review used [Ahmedazim7804/imsnsit_app](https://github.com/Ahmedazim7804/imsnsit_app), a public NSUT IMS companion that documents attendance, profile, timetable, and cached viewing features. It is GPL-3.0 licensed; this project uses it as a feature reference only and does not copy or depend on its source code.
 
 ## REST API
 
