@@ -22,7 +22,7 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
       <h2>Sign in to continue.</h2>
       <p className="muted">Use your eligible NSUT Google account to access your campus desk.</p>
       {!oauthConfigured ? <p className="error" role="status">Google sign-in is unavailable in this local preview. Add real Google OAuth credentials to <code>.env.local</code> and restart the server.</p> : <>
-        {error && <p className="error" role="alert">{error === 'AccessDenied' ? 'This account is not eligible. Use a verified @nsut.ac.in Google Workspace account.' : 'Google sign-in failed. Check the OAuth client settings and authorized redirect URI.'}</p>}
+        {error === 'AccessDenied' && <p className="error" role="alert">This account is not eligible. Use a verified @nsut.ac.in Google Workspace account.</p>}
         <form action={async () => { 'use server'; await signIn('google', { redirectTo: '/feed' }); }}><button className="button" type="submit"><span aria-hidden>G</span> Continue with Google</button></form>
       </>}
       <small>University account required. New members set up their profile after signing in.</small>
